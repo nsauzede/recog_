@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <title>recog</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#4a90e2" />
+    <link rel="manifest" href="/recog_/manifest.json" />
+    
+    <link rel="icon" type="image/svg+xml" href="/recog_/favicon.svg" />
+    
+    
+    
+    
+    <style>
+        body {
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: #f5f5f5;
+        }
+    </style>
+<link rel="modulepreload" href="/recog_/recog-4f582a68997fdc22.js" crossorigin="anonymous" integrity="sha384-De737RLy+HKBAo3bf60oyx4id2AhwQUhFGzxu4gezrpVR2XHvedw9TWTaQru3kb2"><link rel="preload" href="/recog_/recog-4f582a68997fdc22_bg.wasm" crossorigin="anonymous" integrity="sha384-jx86ekkqtM92LJ0SjpMf8iYfwGhoH0pteVhdgQzdwnVqmSKhyu2IT8cXuiRrTKHO" as="fetch" type="application/wasm"></head>
+<body>
+    <script>
+        // Register service worker
+        if ('serviceWorker' in navigator) {
+            const isDev = window.location.hostname === 'localhost' ||
+                      window.location.hostname === '127.0.0.1' ||
+                      window.location.port === '8080';  // default trunk port
+            if (!isDev) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/recog_/sw.js')
+                    .then(reg => {
+                        console.log('✅ Service Worker registered:', reg.scope);
+
+                        // Check for updates every time the page loads
+                        reg.update();
+
+                        // Listen for updates
+                        reg.addEventListener('updatefound', () => {
+                            const newWorker = reg.installing;
+                            newWorker.addEventListener('statechange', () => {
+                                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                    console.log('🔄 New version available! Reload to update.');
+                                    // Auto-reload to get the new version
+                                    if (confirm('New version available! Reload now?')) {
+                                        window.location.reload();
+                                    }
+                                }
+                            });
+                        });
+                    })
+                    .catch(err => console.error('❌ Service Worker registration failed:', err));
+            });
+            } else {
+                console.log('⏭ SW registration skipped in dev');
+            }
+        }
+    </script>
+
+<script type="module">
+import init, * as bindings from '/recog_/recog-4f582a68997fdc22.js';
+const wasm = await init({ module_or_path: '/recog_/recog-4f582a68997fdc22_bg.wasm' });
+
+
+window.wasmBindings = bindings;
+
+
+dispatchEvent(new CustomEvent("TrunkApplicationStarted", {detail: {wasm}}));
+
+</script></body>
+</html>
